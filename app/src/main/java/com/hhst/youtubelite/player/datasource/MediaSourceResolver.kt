@@ -421,7 +421,16 @@ class MediaSourceResolver(
             val extractorsFactory = ExtractorsFactory {
                 arrayOf(SubtitleExtractor(parserFactory.create(format), format))
             }
-            ProgressiveMediaSource.Factory(dataSources.manifest(sub.requestPlan), extractorsFactory)
+            // Captions are standalone timed-text resources. Do not execute
+            // their URL with the media stream's RequestPlan: that plan can
+            // add video-manifest/session handling and makes MergingMediaSource
+            // report the whole video as failed. This mirrors LitubeEnhanced's
+            // progressive subtitle path (range=false, rn=true).
+            ProgressiveMediaSource.Factory(
+                dataSources.ytLiveProgressive,
+                extractorsFactory,
+            )
+                .setContinueLoadingCheckIntervalBytes(PlayerDataSource.PROGRESSIVE_LOAD_INTERVAL_BYTES)
                 .createMediaSource(MediaItem.fromUri(sub.url))
         }
     }
