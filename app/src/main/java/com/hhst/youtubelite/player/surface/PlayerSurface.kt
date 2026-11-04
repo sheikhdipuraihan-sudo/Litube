@@ -181,12 +181,15 @@ fun PlayerSurface(
         state.controlsVisible, state.isPlaying, state.locked, state.scrubbing,
         sheet, dialog, menu, state.error, state.videoId, state.fullscreen, gestureActive,
     ) {
-        if (sheet != null || dialog != null || menu != null || state.locked ||
+        if (sheet != null || dialog != null || menu != null ||
             state.error != null || state.scrubbing || gestureActive
         ) {
             return@LaunchedEffect
         }
-        if (state.controlsVisible && state.isPlaying) {
+        // Locking hides the normal chrome immediately, but the lock affordance
+        // is still part of that chrome. Keep the same timeout while locked so
+        // the lock button cannot remain permanently over the video.
+        if (state.controlsVisible && (state.isPlaying || state.locked)) {
             delay(CONTROLS_AUTO_HIDE_MS)
             callbacks.onHideControls()
         }

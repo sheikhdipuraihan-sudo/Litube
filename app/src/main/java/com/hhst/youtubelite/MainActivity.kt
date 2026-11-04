@@ -10,6 +10,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.drawable.Icon
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
@@ -33,6 +35,7 @@ import com.hhst.youtubelite.browser.UrlPolicy
 import com.hhst.youtubelite.core.PipSupport
 import com.hhst.youtubelite.core.PipAutoEnter
 import com.hhst.youtubelite.downloader.core.DownloadShareParser
+import com.hhst.youtubelite.downloader.ui.DownloadActivity
 import com.hhst.youtubelite.extension.ExtensionManager
 import com.hhst.youtubelite.extension.PreferenceKeys
 import com.hhst.youtubelite.player.PlayerViewModel
@@ -146,6 +149,9 @@ class MainActivity : ComponentActivity() {
             if (sharedUrl.value == null && playerViewModel.audioOnlyBackground) {
                 sharedUrl.value = playerViewModel.uiState.value.url
             }
+            if (!hasValidatedInternet()) {
+                startActivity(DownloadActivity.intent(this))
+            }
         }
         setContent {
             AppTheme {
@@ -188,6 +194,14 @@ class MainActivity : ComponentActivity() {
         prefs.addOnChangedListener(pipPrefListener)
         pipPrefListenerRef = pipPrefListener
         lifecycleScope.launch { playerViewModel.uiState.collect { syncPipParams() } }
+    }
+
+    private fun hasValidatedInternet(): Boolean {
+        val connectivity = getSystemService(ConnectivityManager::class.java) ?: return false
+        val network = connectivity.activeNetwork ?: return false
+        val capabilities = connectivity.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
 
     override fun onResume() {

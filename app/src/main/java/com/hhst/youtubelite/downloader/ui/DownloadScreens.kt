@@ -71,6 +71,7 @@ import com.hhst.youtubelite.downloader.core.DownloadSettings
 import com.hhst.youtubelite.downloader.core.DownloadStatus
 import com.hhst.youtubelite.downloader.core.DownloadTarget
 import com.hhst.youtubelite.downloader.core.RemoveMode
+import com.hhst.youtubelite.downloader.ui.InAppDownloadPlayerActivity
 import com.hhst.youtubelite.ui.components.ConstrainedPage
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -134,7 +135,7 @@ fun DownloadManagerScreen(
             DownloadRowAction.CANCEL -> viewModel.cancel(target)
             DownloadRowAction.RETRY -> viewModel.retryFailed(target)
             DownloadRowAction.REDOWNLOAD -> viewModel.redownload(target)
-            DownloadRowAction.OPEN -> openUri(context, item.publishedUris.firstOrNull())
+            DownloadRowAction.OPEN -> openUri(context, item.publishedUris.firstOrNull(), item.title)
             DownloadRowAction.SHARE -> shareUri(context, item.publishedUris.firstOrNull(), item.title)
             DownloadRowAction.COPY_ID -> copyId(context, item.videoId)
             DownloadRowAction.DELETE -> pendingDelete = item
@@ -635,9 +636,11 @@ private fun DeleteDialog(
     )
 }
 
-private fun openUri(context: Context, uri: String?) {
+private fun openUri(context: Context, uri: String?, title: String = "") {
     val parsed = DownloadFileShare.parseOpenable(uri) ?: return
-    runCatching { context.startActivity(DownloadFileShare.viewIntent(parsed)) }
+    runCatching {
+        context.startActivity(InAppDownloadPlayerActivity.intent(context, parsed, title))
+    }
 }
 
 private fun shareUri(context: Context, uri: String?, title: String) {

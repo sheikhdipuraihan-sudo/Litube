@@ -60,6 +60,16 @@ jobs:
             app/build/outputs/mapping/minifiedDebugAndroidTest
             app/build/outputs/diagnostic-mappings
           if-no-files-found: error
+      - name: Build release APK
+        run: >-
+          bash gradlew :app:assembleRelease --max-workers=2
+          -Pkotlin.compiler.execution.strategy=in-process
+          "-Dorg.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: youtube-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
 
   offline-device:
     needs: build
