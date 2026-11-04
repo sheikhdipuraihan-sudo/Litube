@@ -1,0 +1,56 @@
+--- a/app/src/main/java/com/hhst/youtubelite/player/engine/PlaybackEngine.kt
++++ b/app/src/main/java/com/hhst/youtubelite/player/engine/PlaybackEngine.kt
+@@ -1245,8 +1245,17 @@
+         }
+         val stream = currentStream
+         val metadata = currentMetadata
++        // Enabling captions rebuilds the media source so the side-loaded
++        // subtitle track is merged in. If that rebuild fails (bad/expired
++        // timedtext URL, network, etc.) we must not leave the player dead —
++        // fall back to video-only and treat captions as unavailable.
+         if (stream != null && metadata != null && trackKey != null) {
+-            rebuildAtCurrentPosition(stream, metadata, subtitleKey = trackKey)
++            rebuildAtCurrentPosition(
++                stream,
++                metadata,
++                subtitleKey = trackKey,
++                subtitleFallbackOnFailure = true,
++            )
+         }
+         applySubtitle(trackKey)
+         return true
+@@ -1750,6 +1759,7 @@
+         startMs: Long = player.currentPosition,
+         subtitleKey: String? = _snapshot.value.subtitleKey,
+         reloadCast: Boolean = false,
++        subtitleFallbackOnFailure: Boolean = false,
+     ) {
+         val speed = activePlayer().playbackParameters.speed
+         if (preferredQuality != null) pinnedQuality = preferredQuality
+@@ -1816,6 +1826,26 @@
+                 }
+             } catch (t: Throwable) {
+                 if (t is CancellationException) { rebuilding.finish(DiagnosticOutcome.CANCELLED, "rebuild_cancelled"); throw t }
++                // Caption side-load failed: retry once without subtitles so
++                // the video keeps playing instead of showing "could not play".
++                if (subtitleFallbackOnFailure && subtitleKey != null) {
++                    rebuilding.finish(DiagnosticOutcome.FAILURE, "subtitle_rebuild_failed", t)
++                    cache.put(KEY_SUBTITLE_OFF, "1", PREF_TTL_MS)
++                    cache.invalidate(KEY_SUBTITLE)
++                    applySubtitle(null)
++                    rebuildAtCurrentPosition(
++                        stream,
++                        metadata,
++                        preferredQuality = preferredQuality,
++                        audioTrackKey = audioTrackKey,
++                        forceMuxed = forceMuxed,
++                        startMs = startMs,
++                        subtitleKey = null,
++                        reloadCast = reloadCast,
++                        subtitleFallbackOnFailure = false,
++                    )
++                    return@launch
++                }
+                 rebuilding.finish(DiagnosticOutcome.FAILURE, "rebuild_failed", t)
+                 if (diagnosticContext == context) playbackOperation?.finish(DiagnosticOutcome.FAILURE, "rebuild_failed", t)
+                 _snapshot.value = _snapshot.value.copy(isBuffering = false, error = playbackFailed(t))
