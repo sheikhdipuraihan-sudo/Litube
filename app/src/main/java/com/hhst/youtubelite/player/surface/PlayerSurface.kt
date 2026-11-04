@@ -592,7 +592,9 @@ private fun rememberGestureCallbacks(
 ): GestureCallbacks = remember(callbacks, locked, fullscreen, zoom, fullscreenSwipe) {
     if (locked) {
         object : GestureCallbacks {
-            override fun onTap() = Unit
+            // Locked playback ignores playback gestures, but a tap should bring
+            // back the temporary unlock affordance after it auto-hides.
+            override fun onTap() = callbacks.onToggleControls()
         }
     } else {
         ForwardingGestures(callbacks, fullscreen, zoom, fullscreenSwipe)

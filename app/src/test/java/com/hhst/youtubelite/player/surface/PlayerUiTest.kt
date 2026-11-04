@@ -150,7 +150,7 @@ class PlayerUiTest {
     @Test
     fun lockVisible_fullscreenOnlyNeverInMini() {
         assertTrue(PlayerUi.lockVisible(fullscreen = true, mini = false, locked = false, controlsVisible = true))
-        assertTrue(PlayerUi.lockVisible(fullscreen = true, mini = false, locked = true, controlsVisible = false))
+        assertFalse(PlayerUi.lockVisible(fullscreen = true, mini = false, locked = true, controlsVisible = false))
         assertFalse(PlayerUi.lockVisible(fullscreen = false, mini = false, locked = false, controlsVisible = true))
         assertFalse(PlayerUi.lockVisible(fullscreen = true, mini = true, locked = false, controlsVisible = true))
     }

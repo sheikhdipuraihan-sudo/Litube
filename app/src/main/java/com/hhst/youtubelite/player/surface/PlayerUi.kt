@@ -298,9 +298,9 @@ object PlayerUi {
         else -> R.string.segments
     }
 
-    /** Lock control lives on the fullscreen surface, never inside More. */
+    /** Lock control lives on the fullscreen surface and follows the normal chrome timeout. */
     fun lockVisible(fullscreen: Boolean, mini: Boolean, locked: Boolean, controlsVisible: Boolean): Boolean =
-        fullscreen && !mini && (locked || controlsVisible)
+        fullscreen && !mini && controlsVisible
 
     /**
      * Lock *state* icon: locked shows a closed lock, unlocked an open lock.
