@@ -1710,12 +1710,6 @@ class PlaybackEngine(
         }
         var cause: Throwable? = error
         while (cause != null) {
-            if (cause is HttpDataSource.HttpDataSourceException) {
-                val uri = cause.dataSpec.uri.toString()
-                if (uri.contains("timedtext", ignoreCase = true) ||
-                    uri.contains("caption", ignoreCase = true)
-                ) return true
-            }
             val msg = cause.message.orEmpty()
             if (msg.contains("Legacy decoding is disabled", ignoreCase = true) ||
                 msg.contains("application/ttml+xml", ignoreCase = true) ||
@@ -1730,25 +1724,11 @@ class PlaybackEngine(
 
     /** Drop captions and keep A/V playing after a TTML/cue renderer failure. */
     private fun recoverFromTextError() {
+        // Disable TEXT first; re-prepare can otherwise retry the same samples
+        // and crash again while ExoPlayer tries to disable the text renderer.
+        runCatching { applySubtitle(null) }
         val position = player.currentPosition.coerceAtLeast(0L)
-        // Disable TEXT first and persist the off state. Re-preparing the same
-        // merged source would request the broken caption again and surface the
-        // error as a full-video failure on the next load.
-        runCatching {
-            cache.put(KEY_SUBTITLE_OFF, "1", PREF_TTL_MS)
-            cache.invalidate(KEY_SUBTITLE)
-            applySubtitle(null)
-        }
-        val stream = currentStream
-        val metadata = currentMetadata
-        if (stream != null && metadata != null) {
-            rebuildAtCurrentPosition(
-                stream,
-                metadata,
-                startMs = position,
-                subtitleKey = null,
-            )
-        } else if (player.playerError != null) {
+        if (player.playerError != null) {
             runCatching {
                 skipSeekInProgress = true
                 player.prepare()

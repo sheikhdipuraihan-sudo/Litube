@@ -298,7 +298,7 @@ object PlayerUi {
         else -> R.string.segments
     }
 
-    /** Lock control lives on the fullscreen surface and follows the normal chrome timeout. */
+    /** Lock control follows the normal fullscreen chrome timeout. */
     fun lockVisible(fullscreen: Boolean, mini: Boolean, locked: Boolean, controlsVisible: Boolean): Boolean =
         fullscreen && !mini && controlsVisible
 

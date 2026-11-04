@@ -186,9 +186,7 @@ fun PlayerSurface(
         ) {
             return@LaunchedEffect
         }
-        // Locking hides the normal chrome immediately, but the lock affordance
-        // is still part of that chrome. Keep the same timeout while locked so
-        // the lock button cannot remain permanently over the video.
+        // Keep the lock affordance on the same timeout as the normal chrome.
         if (state.controlsVisible && (state.isPlaying || state.locked)) {
             delay(CONTROLS_AUTO_HIDE_MS)
             callbacks.onHideControls()
@@ -592,8 +590,7 @@ private fun rememberGestureCallbacks(
 ): GestureCallbacks = remember(callbacks, locked, fullscreen, zoom, fullscreenSwipe) {
     if (locked) {
         object : GestureCallbacks {
-            // Locked playback ignores playback gestures, but a tap should bring
-            // back the temporary unlock affordance after it auto-hides.
+            // A tap while locked only reveals the temporary unlock affordance.
             override fun onTap() = callbacks.onToggleControls()
         }
     } else {

@@ -421,21 +421,8 @@ class MediaSourceResolver(
             val extractorsFactory = ExtractorsFactory {
                 arrayOf(SubtitleExtractor(parserFactory.create(format), format))
             }
-            // Timed-text URLs are standalone VTT/TTML resources, not media
-            // manifests or googlevideo byte streams. Reusing the stream's
-            // RequestPlan here can add media range/session handling to the
-            // caption request; when that fails, MergingMediaSource reports
-            // the entire video as "could not play". The caption URL already
-            // carries its own YouTube authorization parameters, so use the
-            // ordinary YouTube HTTP path instead.
-            val item = MediaItem.fromUri(sub.url).buildUpon()
-                // Caption endpoints do not always return a useful
-                // Content-Type, so do not make ProgressiveMediaSource guess
-                // whether this is VTT or TTML.
-                .setMimeType(mime)
-                .build()
-            ProgressiveMediaSource.Factory(dataSources.live, extractorsFactory)
-                .createMediaSource(item)
+            ProgressiveMediaSource.Factory(dataSources.manifest(sub.requestPlan), extractorsFactory)
+                .createMediaSource(MediaItem.fromUri(sub.url))
         }
     }
 
