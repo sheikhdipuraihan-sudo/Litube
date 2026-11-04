@@ -37,6 +37,8 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            // Temporary CI signing; replace before publishing to an app store.
+            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
