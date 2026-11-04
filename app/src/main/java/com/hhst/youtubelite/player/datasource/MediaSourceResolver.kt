@@ -428,8 +428,14 @@ class MediaSourceResolver(
             // the entire video as "could not play". The caption URL already
             // carries its own YouTube authorization parameters, so use the
             // ordinary YouTube HTTP path instead.
+            val item = MediaItem.fromUri(sub.url).buildUpon()
+                // Caption endpoints do not always return a useful
+                // Content-Type, so do not make ProgressiveMediaSource guess
+                // whether this is VTT or TTML.
+                .setMimeType(mime)
+                .build()
             ProgressiveMediaSource.Factory(dataSources.live, extractorsFactory)
-                .createMediaSource(MediaItem.fromUri(sub.url))
+                .createMediaSource(item)
         }
     }
 
