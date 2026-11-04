@@ -29,7 +29,7 @@ class InAppDownloadPlayerActivity : ComponentActivity() {
             useController = true
             controllerAutoShow = true
             controllerHideOnTouch = true
-            setShowTimeoutMs(CONTROLLER_TIMEOUT_MS)
+            controllerShowTimeoutMs = CONTROLLER_TIMEOUT_MS
             setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
             setBackgroundColor(android.graphics.Color.BLACK)
             layoutParams = ViewGroup.LayoutParams(
