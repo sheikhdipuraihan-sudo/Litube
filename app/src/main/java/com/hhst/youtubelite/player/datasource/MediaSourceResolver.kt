@@ -427,7 +427,7 @@ class MediaSourceResolver(
             // report the whole video as failed. This mirrors LitubeEnhanced's
             // progressive subtitle path (range=false, rn=true).
             ProgressiveMediaSource.Factory(
-                dataSources.ytLiveProgressive,
+                dataSources.ytProgressive,
                 extractorsFactory,
             )
                 .setContinueLoadingCheckIntervalBytes(PlayerDataSource.PROGRESSIVE_LOAD_INTERVAL_BYTES)
