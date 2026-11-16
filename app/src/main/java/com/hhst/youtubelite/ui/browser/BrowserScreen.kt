@@ -71,6 +71,7 @@ import com.hhst.youtubelite.R
 import com.hhst.youtubelite.browser.Bridge
 import com.hhst.youtubelite.browser.BrowserHost
 import com.hhst.youtubelite.browser.PageKind
+import com.hhst.youtubelite.browser.PageOrigin
 import com.hhst.youtubelite.browser.PlayerHooks
 import com.hhst.youtubelite.browser.Tab
 import com.hhst.youtubelite.browser.WatchPage
@@ -79,6 +80,7 @@ import com.hhst.youtubelite.browser.TransientUi
 import com.hhst.youtubelite.browser.TransientKind
 import androidx.compose.ui.graphics.graphicsLayer
 import com.hhst.youtubelite.core.HapticsController
+import com.hhst.youtubelite.core.Constants
 import com.hhst.youtubelite.downloader.core.BatchSnapshot
 import com.hhst.youtubelite.downloader.core.SnapshotReject
 import com.hhst.youtubelite.downloader.core.DownloadShareParser
@@ -108,6 +110,7 @@ import com.hhst.youtubelite.player.surface.PlayerWindowHost
 import com.hhst.youtubelite.ui.about.AboutActivity
 import com.hhst.youtubelite.ui.extension.ExtensionScreen
 import com.hhst.youtubelite.ui.extension.SettingsDataScreen
+import com.hhst.youtubelite.ui.nativehome.NativeHomeScreen
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
@@ -723,7 +726,21 @@ fun BrowserScreen(
                 modifier = Modifier.fillMaxSize(),
             ) { tabId ->
                 val host = hosts[tabId]
-                if (host != null) {
+                if (tabId == uiState.activeId && uiState.url == Constants.HOME_URL) {
+                    NativeHomeScreen(
+                        onPlayVideo = { url -> playerViewModel.playVideo(url, PageOrigin.HOST) },
+                        onOpenWebSearch = { query ->
+                            val target = if (query.isBlank()) {
+                                "https://m.youtube.com/feed/trending"
+                            } else {
+                                "https://m.youtube.com/results?search_query=${java.net.URLEncoder.encode(query, "UTF-8")}"
+                            }
+                            viewModel.openTab(target)
+                        },
+                        onOpenSettings = { showSettingsData = true },
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                } else if (host != null) {
                     AndroidView(
                         factory = {
                             (host.container.parent as? ViewGroup)?.removeView(host.container)
