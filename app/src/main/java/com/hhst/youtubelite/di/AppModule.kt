@@ -83,6 +83,8 @@ import com.hhst.youtubelite.player.sponsor.SponsorBlockManager
 import com.hhst.youtubelite.player.surface.MiniPlayerStore
 import com.hhst.youtubelite.ui.browser.BrowserViewModel
 import com.hhst.youtubelite.ui.extension.ExtensionViewModel
+import com.hhst.youtubelite.ui.nativehome.NativeCatalogRepository
+import com.hhst.youtubelite.ui.nativehome.NativeCatalogViewModel
 import com.tencent.mmkv.MMKV
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
@@ -248,6 +250,8 @@ val appModule = module {
     }
     viewModelOf(::BrowserViewModel)
     viewModel { ExtensionViewModel(manager = get(), pipSupported = PipSupport.isSupported(androidContext())) }
+    single { NativeCatalogRepository(extractor = get()) }
+    viewModel { NativeCatalogViewModel(repository = get()) }
 
     single {
         Room.databaseBuilder(

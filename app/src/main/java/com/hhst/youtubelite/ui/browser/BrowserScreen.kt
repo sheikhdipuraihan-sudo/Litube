@@ -111,6 +111,7 @@ import com.hhst.youtubelite.ui.about.AboutActivity
 import com.hhst.youtubelite.ui.extension.ExtensionScreen
 import com.hhst.youtubelite.ui.extension.SettingsDataScreen
 import com.hhst.youtubelite.ui.nativehome.NativeHomeScreen
+import com.hhst.youtubelite.ui.nativehome.NativeCatalogViewModel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
@@ -124,6 +125,7 @@ import org.koin.compose.koinInject
 @Composable
 fun BrowserScreen(
     viewModel: BrowserViewModel = koinViewModel(),
+    catalogViewModel: NativeCatalogViewModel = koinViewModel(),
     playerViewModel: PlayerViewModel = koinInject(),
     extensionManager: ExtensionManager = koinInject(),
     extractor: Extractor = koinInject(),
@@ -137,6 +139,7 @@ fun BrowserScreen(
     onPlayerActiveChanged: (active: Boolean, playing: Boolean, width: Int, height: Int) -> Unit = { _, _, _, _ -> },
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val catalogState by catalogViewModel.state.collectAsStateWithLifecycle()
     val playerState by playerViewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
@@ -728,6 +731,8 @@ fun BrowserScreen(
                 val host = hosts[tabId]
                 if (tabId == uiState.activeId && uiState.url == Constants.HOME_URL) {
                     NativeHomeScreen(
+                        state = catalogState,
+                        onSearch = catalogViewModel::search,
                         onPlayVideo = { url -> playerViewModel.playVideo(url, PageOrigin.HOST) },
                         onOpenWebSearch = { query ->
                             val target = if (query.isBlank()) {
