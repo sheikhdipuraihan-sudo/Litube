@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +47,7 @@ fun NativeHomeScreen(
     onSearch: (String) -> Unit,
     onPlayVideo: (String) -> Unit,
     onOpenWebSearch: (String) -> Unit,
+    onOpenRoute: (String) -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -130,10 +132,11 @@ fun NativeHomeScreen(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
-                Button(onClick = { }) { Text("Home") }
-                Button(onClick = { onSearch("") }) { Text("Shorts") }
-                Button(onClick = onOpenSettings) { Text("Library") }
-                Button(onClick = onOpenSettings) { Text("You") }
+                TextButton(onClick = { onOpenRoute("https://m.youtube.com") }) { Text("Home") }
+                TextButton(onClick = { onOpenRoute("https://m.youtube.com/shorts") }) { Text("Shorts") }
+                TextButton(onClick = { onOpenRoute("https://m.youtube.com/feed/subscriptions") }) { Text("Subs") }
+                TextButton(onClick = { onOpenRoute("https://m.youtube.com/feed/library") }) { Text("Library") }
+                TextButton(onClick = onOpenSettings) { Text("You") }
             }
         }
     }

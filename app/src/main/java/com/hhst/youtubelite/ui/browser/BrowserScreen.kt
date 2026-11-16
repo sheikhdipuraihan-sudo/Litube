@@ -742,6 +742,7 @@ fun BrowserScreen(
                             }
                             viewModel.openTab(target)
                         },
+                        onOpenRoute = viewModel::openTab,
                         onOpenSettings = { showSettingsData = true },
                         modifier = Modifier.fillMaxSize(),
                     )
